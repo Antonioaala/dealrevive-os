@@ -3,21 +3,7 @@
 import { useState } from "react";
 import { ExternalLink, Zap } from "lucide-react";
 import Link from "next/link";
-
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  quoteAmount: number;
-  channel: string;
-  status: string;
-  step: number;
-  callNotes: string;
-  excludeFromSequence: boolean;
-  createdAt: string;
-}
+import { Lead } from "@/types/lead";
 
 interface LeadTableProps {
   leads: Lead[];

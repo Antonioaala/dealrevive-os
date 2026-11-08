@@ -4,22 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, RefreshCw } from "lucide-react";
 import LeadTable from "./LeadTable";
 import LeadForm from "./LeadForm";
-
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  quoteAmount: number;
-  channel: string;
-  status: string;
-  step: number;
-  callNotes: string;
-  excludeFromSequence: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Lead } from "@/types/lead";
 
 export default function Dashboard() {
   const [leads, setLeads] = useState<Lead[]>([]);

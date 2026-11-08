@@ -3,39 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Loader, Zap, Copy, Check } from "lucide-react";
 import Link from "next/link";
-
-interface FollowUp {
-  id: string;
-  step: number;
-  subject: string;
-  emailBody: string;
-  whatsappMessage: string;
-  sentAt: string | null;
-}
-
-interface Reply {
-  id: string;
-  message: string;
-  createdAt: string;
-  source: string;
-}
-
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  quoteAmount: number;
-  channel: string;
-  status: string;
-  step: number;
-  callNotes: string;
-  excludeFromSequence: boolean;
-  createdAt: string;
-  followups: FollowUp[];
-  replies: Reply[];
-}
+import { Lead, FollowUp, Reply } from "@/types/lead";
 
 interface LeadDetailProps {
   leadId: string;

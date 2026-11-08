@@ -1,10 +1,10 @@
+"use client";
+
+import { useParams } from "next/navigation";
 import LeadDetail from "@/components/LeadDetail";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default async function LeadPage({ params }: PageProps) {
-  const { id } = await params;
+export default function LeadPage() {
+  const params = useParams();
+  const id = params.id as string;
   return <LeadDetail leadId={id} />;
 }

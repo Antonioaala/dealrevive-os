@@ -12,6 +12,8 @@ export interface Lead {
   excludeFromSequence: boolean;
   createdAt: Date;
   updatedAt: Date;
+  followups: FollowUp[];
+  replies: Reply[];
 }
 
 export interface FollowUp {
