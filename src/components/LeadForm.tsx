@@ -2,22 +2,23 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { Deal } from "@/types/deal";
 
 interface LeadFormProps {
-  onLeadCreated: (lead: any) => void;
+  onLeadCreated: (deal: Deal) => void;
   onCancel: () => void;
 }
 
 export default function LeadForm({ onLeadCreated, onCancel }: LeadFormProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    name: "",
+    nombre: "",
     email: "",
-    phone: "",
-    company: "",
-    quoteAmount: "",
-    channel: "Email",
-    callNotes: "",
+    empresa: "",
+    valor: "",
+    contexto: "",
+    razon_enfriamiento: "Contacto nuevo",
   });
 
   const handleChange = (
@@ -35,20 +36,26 @@ export default function LeadForm({ onLeadCreated, onCancel }: LeadFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch("/api/leads", {
+      const response = await fetch("/api/deals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        const newLead = await response.json();
-        onLeadCreated(newLead);
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Error al crear trato");
       }
-    } catch (error) {
-      console.error("Failed to create lead:", error);
+
+      const newDeal = await response.json();
+      onLeadCreated(newDeal);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Error desconocido";
+      setError(msg);
+      console.error("Failed to create deal:", err);
     } finally {
       setLoading(false);
     }
@@ -66,15 +73,21 @@ export default function LeadForm({ onLeadCreated, onCancel }: LeadFormProps) {
         </button>
       </div>
 
+      {error && (
+        <div className="mb-4 p-3 bg-red-900/30 border border-red-700/50 rounded text-red-300 text-sm">
+          {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-slate-300 mb-2">
-            Nombre del Lead
+            Nombre
           </label>
           <input
             type="text"
-            name="name"
-            value={formData.name}
+            name="nombre"
+            value={formData.nombre}
             onChange={handleChange}
             required
             className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-emerald-500 text-slate-50 transition-colors"
@@ -99,81 +112,65 @@ export default function LeadForm({ onLeadCreated, onCancel }: LeadFormProps) {
 
         <div>
           <label className="block text-sm font-semibold text-slate-300 mb-2">
-            Teléfono
-          </label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-emerald-500 text-slate-50 transition-colors"
-            placeholder="+54 9 11 1234-5678"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-slate-300 mb-2">
             Empresa
           </label>
           <input
             type="text"
-            name="company"
-            value={formData.company}
+            name="empresa"
+            value={formData.empresa}
             onChange={handleChange}
             required
             className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-emerald-500 text-slate-50 transition-colors"
-            placeholder="Constructora XYZ"
+            placeholder="Empresa X"
           />
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-slate-300 mb-2">
-            Presupuesto ($)
+            Valor ($)
           </label>
           <input
             type="number"
-            name="quoteAmount"
-            value={formData.quoteAmount}
+            name="valor"
+            value={formData.valor}
             onChange={handleChange}
             required
+            step="1000"
             className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-emerald-500 text-slate-50 transition-colors"
             placeholder="50000"
           />
         </div>
 
-        <div>
+        <div className="md:col-span-2">
           <label className="block text-sm font-semibold text-slate-300 mb-2">
-            Canal
+            Contexto (qué necesita)
           </label>
-          <select
-            name="channel"
-            value={formData.channel}
+          <textarea
+            name="contexto"
+            value={formData.contexto}
             onChange={handleChange}
-            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-emerald-500 text-slate-50 transition-colors"
-          >
-            <option>Email</option>
-            <option>WhatsApp</option>
-            <option>Phone</option>
-          </select>
+            required
+            rows={3}
+            className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-emerald-500 text-slate-50 transition-colors resize-none"
+            placeholder="Describe el negocio y la solución que necesita..."
+          />
         </div>
 
         <div className="md:col-span-2">
           <label className="block text-sm font-semibold text-slate-300 mb-2">
-            Notas de la Llamada / Requisición
+            Razón del enfriamiento
           </label>
           <textarea
-            name="callNotes"
-            value={formData.callNotes}
+            name="razon_enfriamiento"
+            value={formData.razon_enfriamiento}
             onChange={handleChange}
-            required
-            rows={4}
+            rows={2}
             className="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-emerald-500 text-slate-50 transition-colors resize-none"
-            placeholder="Detalles técnicos, restricciones presupuestarias, timeline..."
+            placeholder="Por qué pasó? No respondió, cambio de persona, etc"
           />
         </div>
 
-        <div className="md:col-span-2 flex gap-4">
+        <div className="md:col-span-2 flex gap-3">
           <button
             type="submit"
             disabled={loading}
@@ -184,7 +181,7 @@ export default function LeadForm({ onLeadCreated, onCancel }: LeadFormProps) {
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 px-6 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 font-semibold transition-all"
+            className="px-6 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 font-semibold transition-colors"
           >
             Cancelar
           </button>
