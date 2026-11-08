@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Lead {
+  id                  String   @id @default(cuid())
+  name                String
+  email               String
+  phone               String
+  company             String
+  quoteAmount         Float
+  channel             String   @default("Email") // Email, WhatsApp, Phone
+  status              String   @default("Activo") // Activo, Respondido, Cerrado
+  step                Int      @default(0) // 0: initial, 1: first followup, 2: second, 3: third
+  callNotes           String
+  excludeFromSequence Boolean  @default(false)
+
+  followups           FollowUp[]
+  replies             Reply[]
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model FollowUp {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  step      Int      // 1, 2, 3
+  subject   String
+  emailBody String
+  whatsappMessage String
+
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
+
+model Reply {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  message   String
+  source    String   @default("webhook") // webhook, manual
+
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
