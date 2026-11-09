@@ -12,6 +12,31 @@ interface LeadTableProps {
 
 export default function LeadTable({ deals, onDealUpdated }: LeadTableProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerateEmail = async (dealId: string) => {
+    setLoadingId(dealId);
+    setError(null);
+    try {
+      const res = await fetch("/api/followup/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deal_id: dealId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error generando email");
+
+      // Refrescar deals
+      const dealsRes = await fetch("/api/deals");
+      const dealsData = await dealsRes.json();
+      const updatedDeal = dealsData.find((d: Deal) => d.id === dealId);
+      if (updatedDeal) onDealUpdated(updatedDeal);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error desconocido");
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   const getStatusBadge = (estado: string) => {
     switch (estado) {
@@ -92,6 +117,16 @@ export default function LeadTable({ deals, onDealUpdated }: LeadTableProps) {
               <td className="px-6 py-4 text-sm">{getStepBadge(deal.paso)}</td>
               <td className="px-6 py-4 text-sm">{getStatusBadge(deal.estado)}</td>
               <td className="px-6 py-4 text-sm flex gap-2">
+                {deal.estado === "activo" && deal.paso < 4 && (
+                  <button
+                    onClick={() => handleGenerateEmail(deal.id)}
+                    disabled={loadingId === deal.id}
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded bg-yellow-600/50 hover:bg-yellow-500/50 disabled:opacity-50 text-yellow-300 transition-colors text-xs font-medium"
+                  >
+                    <Zap size={14} />
+                    {loadingId === deal.id ? "Enviando..." : "Email"}
+                  </button>
+                )}
                 <Link
                   href={`/deals/${deal.id}`}
                   className="inline-flex items-center gap-1 px-3 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 transition-colors text-xs"
