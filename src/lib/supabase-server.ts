@@ -5,7 +5,10 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 let supabase: ReturnType<typeof createClient> | null = null;
 
-if (supabaseUrl && serviceRoleKey) {
+// Only create client if both vars exist and URL is a valid Supabase URL (not placeholder)
+const isValidSupabaseUrl = supabaseUrl && supabaseUrl.includes("supabase.co");
+
+if (isValidSupabaseUrl && serviceRoleKey) {
   supabase = createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       persistSession: false,
