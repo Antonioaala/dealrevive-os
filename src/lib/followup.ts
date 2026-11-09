@@ -1,10 +1,10 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Resend } from "resend";
 import { supabase } from "./supabase-server";
 import { Deal, Email } from "./supabase-server";
 
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const gemini = process.env.GEMINI_API_KEY
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
 
 const resend = process.env.RESEND_API_KEY
@@ -21,8 +21,8 @@ export async function generateFollowupEmail(
   deal: Deal,
   paso: number
 ): Promise<FollowupEmail | null> {
-  if (!anthropic) {
-    console.error("Anthropic API key not configured");
+  if (!gemini) {
+    console.error("Gemini API key not configured");
     return null;
   }
 
@@ -101,21 +101,11 @@ Responde en JSON: {"asunto": "...", "cuerpo": "..."}`,
   }
 
   try {
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 300,
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
+    const model = gemini.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
-    const content = message.content[0];
-    if (content.type !== "text") return null;
-
-    const json = JSON.parse(content.text);
+    const json = JSON.parse(text);
     return {
       asunto: json.asunto,
       cuerpo: json.cuerpo,

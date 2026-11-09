@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^7.10.1",
     "@supabase/supabase-js": "^2.119.0",
     "@types/better-sqlite3": "^9.6.0",

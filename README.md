@@ -11,7 +11,7 @@ Revive tratos fríos con IA. Genera correos personalizados, envíalos automátic
 
 ## Tech Stack
 
-- Next.js 16 + Supabase + Anthropic Claude + Resend
+- Next.js 16 + Supabase + Google Gemini + Resend
 - 6 tratos de ejemplo (República Dominicana)
 - Build: ✅ (sin errores con `npm run build`)
 
@@ -31,7 +31,7 @@ npm install
 4. Copia credenciales a `.env.local`
 
 ### 3. Configurar APIs
-- **Anthropic**: `ANTHROPIC_API_KEY=sk-ant-...`
+- **Google Gemini**: `GEMINI_API_KEY=...` (obtén en https://aistudio.google.com)
 - **Resend**: `RESEND_API_KEY=re_...` + `DEMO_EMAIL=demo@example.com`
 - **CRON_SECRET**: Genera token aleatorio
 
@@ -40,7 +40,7 @@ npm install
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
-ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=your-gemini-api-key
 RESEND_API_KEY=re_...
 DEMO_EMAIL=noreply@example.com
 CRON_SECRET=secret-token
@@ -93,4 +93,4 @@ npm run dev
 
 ---
 
-**Next Steps**: Desplegar en Vercel con credenciales reales de Supabase/Anthropic/Resend
+**Next Steps**: Desplegar en Vercel con credenciales reales de Supabase/Gemini/Resend
