@@ -5,15 +5,27 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 let supabase: ReturnType<typeof createClient> | null = null;
 
-// Only create client if both vars exist and URL is a valid Supabase URL (not placeholder)
-const isValidSupabaseUrl = supabaseUrl && supabaseUrl.includes("supabase.co");
+// Only create client if:
+// 1. Both URL and key exist
+// 2. URL contains 'supabase.co' (not placeholder)
+// 3. URL doesn't start with placeholder patterns
+const isPlaceholder =
+  !supabaseUrl ||
+  supabaseUrl.includes("your-project") ||
+  supabaseUrl.includes("example") ||
+  !supabaseUrl.includes("supabase.co");
 
-if (isValidSupabaseUrl && serviceRoleKey) {
-  supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-    },
-  });
+if (!isPlaceholder && serviceRoleKey && !serviceRoleKey.includes("your-")) {
+  try {
+    supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+      },
+    });
+  } catch (error) {
+    // Gracefully handle any Supabase initialization errors
+    console.debug("Supabase initialization error (expected in build):", error);
+  }
 }
 
 export { supabase };
